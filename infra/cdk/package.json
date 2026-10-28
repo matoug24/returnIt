@@ -1,0 +1,22 @@
+{
+  "name": "@returnet/infrastructure",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "synth": "cdk synth",
+    "test": "vitest run",
+    "check": "pnpm build && pnpm test && pnpm synth"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.215.0",
+    "constructs": "10.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.1",
+    "aws-cdk": "2.1029.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}

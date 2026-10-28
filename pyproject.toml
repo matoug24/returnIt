@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "returnet"
+version = "0.1.0"
+description = "Returnet pilot-ready modular monolith"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic==1.16.5",
+  "boto3>=1.35,<2",
+  "fastapi==0.116.1",
+  "psycopg[binary]==3.2.10",
+  "pydantic-settings==2.10.1",
+  "python-multipart==0.0.20",
+  "sqlalchemy==2.0.43",
+  "uvicorn[standard]==0.35.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx==0.28.1",
+  "hypothesis==6.138.15",
+  "mypy==1.17.1",
+  "pytest==8.4.2",
+  "pytest-cov==6.2.1",
+  "ruff==0.12.11",
+]
+
+[tool.setuptools.packages.find]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+addopts = "-q --strict-markers -p no:cacheprovider"
+markers = ["postgres: requires PostgreSQL/PostGIS integration database"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"] # FastAPI intentionally constructs dependency/parameter markers in signatures.
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+strict = true
+exclude = ["backend/alembic"]
+
+[tool.coverage.run]
+source = ["backend/app"]

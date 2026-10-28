@@ -1,0 +1,6 @@
+import * as cdk from "aws-cdk-lib";
+import { Match, Template } from "aws-cdk-lib/assertions";
+import { describe, expect, it } from "vitest";
+import { ReturnetStack } from "../lib/returnet-stack";
+
+describe("Returnet infrastructure",()=>{const template=Template.fromStack(new ReturnetStack(new cdk.App(),"TestStack"));it("keeps data services private and encrypted",()=>{template.hasResourceProperties("AWS::RDS::DBInstance",{PubliclyAccessible:false,StorageEncrypted:true});template.hasResourceProperties("AWS::S3::Bucket",{PublicAccessBlockConfiguration:Match.objectLike({BlockPublicAcls:true})});});it("defines durable work with a dead letter queue",()=>{template.resourceCountIs("AWS::SQS::Queue",2);template.hasResourceProperties("AWS::SQS::Queue",{RedrivePolicy:Match.anyValue()});});it("wires Cognito and SQS into production tasks without dev authentication",()=>{const tasks=template.findResources("AWS::ECS::TaskDefinition");const rendered=JSON.stringify(tasks);expect(rendered).toContain("RETURNET_DEV_AUTH_ENABLED");expect(rendered).not.toContain('RETURNET_DEV_AUTH_ENABLED\",\"Value\":\"true');expect(rendered).toContain("RETURNET_COGNITO_ISSUER");expect(rendered).toContain("RETURNET_COGNITO_JWKS_URL");expect(rendered).toContain("RETURNET_SQS_QUEUE_URL");});});

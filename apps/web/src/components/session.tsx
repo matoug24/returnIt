@@ -1,0 +1,13 @@
+"use client";
+/* eslint-disable react-hooks/set-state-in-effect -- hydrate user-owned local demo preferences */
+import Link from "next/link";
+import {createContext,useContext,useEffect,useState} from "react";
+import {api,type Me} from "@/lib/api";
+import type {Locale} from "@/lib/i18n";
+
+type Session={locale:Locale;setLocale:(v:Locale)=>void;identity:string;setIdentity:(v:string)=>void;role:string};
+const Context=createContext<Session|null>(null);
+const identities=["customer@local.returnet.ca","customer-en@local.returnet.ca","driver@local.returnet.ca","dispatch@local.returnet.ca","admin@local.returnet.ca","finance@local.returnet.ca"];
+export function SessionProvider({children}:{children:React.ReactNode}){const[locale,setLocale]=useState<Locale>("en");const[identity,setIdentity]=useState(identities[1]);const[serverRole,setServerRole]=useState("");useEffect(()=>{const l=localStorage.getItem("returnet.locale") as Locale|null;const i=localStorage.getItem("returnet.identity");if(l)setLocale(l);if(i)setIdentity(i)},[]);useEffect(()=>{let active=true;api<Me>("/v1/me",identity).then(me=>{if(active)setServerRole(me.role.toLowerCase())}).catch(()=>{if(active)setServerRole("")});return()=>{active=false}},[identity]);function localeChange(v:Locale){setLocale(v);localStorage.setItem("returnet.locale",v)}function identityChange(v:string){setIdentity(v);localStorage.setItem("returnet.identity",v)}const devRole=identity.split("@")[0].replace("-en","");const role=serverRole||(process.env.NODE_ENV!=="production"?devRole:"");return <Context.Provider value={{locale,setLocale:localeChange,identity,setIdentity:identityChange,role}}>{children}</Context.Provider>}
+export function useSession(){const value=useContext(Context);if(!value)throw new Error("SessionProvider missing");return value}
+export function Nav(){const{locale,setLocale,identity,setIdentity,role}=useSession();const staff=["dispatch","admin","finance","support"].includes(role);return <header className="nav"><Link className="brand" href="/"><span>R</span> Returnet</Link><nav aria-label={locale==="fr"?"Navigation principale":"Primary navigation"}><Link href="/bookings">{locale==="fr"?"Mes retours":"My returns"}</Link>{staff&&<Link href="/admin">{locale==="fr"?"Opérations":"Operations"}</Link>}</nav><div className="session"><div role="group" aria-label="Language"><button aria-pressed={locale==="en"} onClick={()=>setLocale("en")}>EN</button><button aria-pressed={locale==="fr"} onClick={()=>setLocale("fr")}>FR</button></div>{process.env.NODE_ENV!=="production"&&<label><span className="sr-only">Demo identity</span><select value={identity} onChange={e=>setIdentity(e.target.value)}>{identities.map(i=><option key={i}>{i}</option>)}</select></label>}</div></header>}

@@ -1,0 +1,7 @@
+{
+  "app": "node -r ts-node/register bin/returnet.ts",
+  "context": {
+    "@aws-cdk/aws-rds:databaseProxyUniqueResourceName": true,
+    "@aws-cdk/aws-ecs:removeDefaultDeploymentAlarm": true
+  }
+}

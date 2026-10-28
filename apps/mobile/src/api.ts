@@ -1,0 +1,9 @@
+import * as SecureStore from "expo-secure-store";
+import type {DriverCommand} from "./offlineQueue";
+
+export type Booking={id:string;reference:string;status:string;payment_status:string;packages:{id:string;retailer:string;status:string;version:number}[]};
+export type DriverWork={id:string;public_id:string;version:number;stops:{id:string;sequence:number;planned_at:string;booking_reference:string;pickup_address:{line1:string};packages:{id:string;retailer:string;status:string;version:number}[]}[]};
+const runtimeEnv=(globalThis as {process?:{env?:Record<string,string|undefined>}}).process?.env;
+const base=runtimeEnv?.EXPO_PUBLIC_API_URL??"http://localhost:8000";
+export async function request<T>(path:string,init?:RequestInit,devUser?:string):Promise<T>{const headers:Record<string,string>={"Content-Type":"application/json",...(init?.headers as Record<string,string>|undefined)};if(__DEV__)headers["X-Returnet-Dev-User"]=devUser??runtimeEnv?.EXPO_PUBLIC_DEV_USER??"driver@local.returnet.ca";else{const token=await SecureStore.getItemAsync("returnet.token");if(token)headers.Authorization=`Bearer ${token}`}const response=await fetch(`${base}${path}`,{...init,headers});if(!response.ok){const body=await response.json().catch(()=>null);throw new Error(body?.error?.code??`http.${response.status}`)}return response.json() as Promise<T>}
+export async function sendCommand(command:DriverCommand):Promise<void>{const suffix=command.type==="accept_pickup"?"accept_pickup":command.type==="record_handoff"?"record_handoff":"exception";await request(`/v1/driver/packages/${command.packageId}:${suffix}`,{method:"POST",body:JSON.stringify({command_id:command.commandId,expected_version:command.expectedVersion,occurred_at:command.occurredAt,evidence_ids:command.evidenceIds,reason:command.reason,latitude:command.latitude,longitude:command.longitude})})}

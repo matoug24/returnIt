@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Returnet",
+    "slug": "returnet",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Returnet uses the camera to scan return labels and capture chain-of-custody evidence.",
+        "NSLocationWhenInUseUsageDescription": "During an active route, location helps dispatch and improves pickup estimates.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "With your permission, Returnet may use location only during an active driver route."
+      }
+    },
+    "android": {
+      "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "plugins": ["expo-camera", "expo-location", "expo-notifications", "expo-secure-store"]
+  }
+}
+

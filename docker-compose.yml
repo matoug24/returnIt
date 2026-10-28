@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: returnet
+      POSTGRES_PASSWORD: returnet_local_only
+      POSTGRES_DB: returnet
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U returnet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+  localstack:
+    image: localstack/localstack:3.8
+    environment:
+      SERVICES: s3,sqs,eventbridge
+      DEBUG: 0
+    ports: ["4566:4566"]
+    volumes: ["localstack-data:/var/lib/localstack"]
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      RETURNET_DATABASE_URL: postgresql+psycopg://returnet:returnet_local_only@postgres:5432/returnet
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "-m", "backend.app.worker"]
+    env_file: .env
+    environment:
+      RETURNET_DATABASE_URL: postgresql+psycopg://returnet:returnet_local_only@postgres:5432/returnet
+    depends_on:
+      postgres: {condition: service_healthy}
+
+volumes:
+  postgres-data:
+  localstack-data:
+

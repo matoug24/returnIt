@@ -1,0 +1,41 @@
+{
+  "name": "@returnet/mobile",
+  "private": true,
+  "version": "0.1.0",
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "check": "pnpm typecheck && pnpm test"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "54.0.8",
+    "expo-camera": "17.0.8",
+    "expo-location": "19.0.7",
+    "expo-notifications": "0.32.11",
+    "expo-secure-store": "15.0.7",
+    "react": "19.1.1",
+    "react-native": "0.81.4"
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "13.3.3",
+    "@types/jest": "29.5.14",
+    "@types/react": "19.1.12",
+    "jest": "29.7.0",
+    "ts-jest": "29.2.6",
+    "typescript": "5.9.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@react-native-async-storage/async-storage$": "<rootDir>/src/__mocks__/asyncStorage.ts"
+      ,"^expo-secure-store$": "<rootDir>/src/__mocks__/secureStore.ts"
+    },
+    "testPathIgnorePatterns": ["/node_modules/"]
+  }
+}
